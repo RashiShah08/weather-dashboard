@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=7" />
+  <link rel="preconnect" href="https://api.open-meteo.com" />
+  <link rel="preconnect" href="https://geocoding-api.open-meteo.com" />
+  <link rel="preconnect" href="https://images.unsplash.com" />
+</head>
+<body class="is-home">
+  <!-- Cinematic photo background -->
+  <div id="bg" class="bg" aria-hidden="true"></div>
+  <div class="bg__scrim" aria-hidden="true"></div>
+  <div id="sky" class="sky" aria-hidden="true"></div>
+
+  <!-- Framed corner labels (poster feel) -->
+  <div class="frame" aria-hidden="true">
+    <span class="frame__item frame__tl">Weather Dashboard</span>
+    <span class="frame__item frame__tr" id="frame-year">Live · 2026</span>
+    <span class="frame__item frame__bl" id="frame-temp">°</span>
+    <span class="frame__item frame__br" id="frame-city">WeatherDash</span>
+  </div>
+
+  <main class="app">
+    <!-- =========================  HOME  ========================= -->
+    <section id="home" class="home">
+      <p class="eyebrow">National Weather · Live</p>
+      <h1 class="home__title">What&rsquo;s it like<br /><em>out there?</em></h1>
+      <p class="home__sub">Search any city for live conditions, a cinematic forecast and a 5-day outlook.</p>
+
+      <form id="home-form" class="searchbar searchbar--lg" role="search" autocomplete="off">
+        <svg class="searchbar__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 21l-4.3-4.3M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="home-input" class="searchbar__input" type="text" placeholder="Search for a city…" aria-label="Search for a city" />
+        <button class="searchbar__submit" type="submit">Search</button>
+      </form>
+
+      <div class="home__quick">
+        <button class="ghost-btn" id="geo-chip" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v3m0 14v3m10-10h-3M5 12H2m16.95-6.95l-2.1 2.1M7.15 16.85l-2.1 2.1m0-13.9l2.1 2.1m9.7 9.7l2.1 2.1M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Use my location
+        </button>
+      </div>
+
+      <div class="home__popular">
+        <span class="eyebrow">Popular</span>
+        <div class="chips">
+          <button class="chip" type="button" data-city="Tokyo">Tokyo</button>
+          <button class="chip" type="button" data-city="London">London</button>
+          <button class="chip" type="button" data-city="New York">New York</button>
+          <button class="chip" type="button" data-city="Paris">Paris</button>
+          <button class="chip" type="button" data-city="Dubai">Dubai</button>
+          <button class="chip" type="button" data-city="Reykjavik">Reykjavik</button>
+        </div>
+        <nav id="recent" class="recent" aria-label="Recent searches" hidden></nav>
+      </div>
+    </section>
+
+    <!-- Loader -->
+    <section id="loader" class="skeleton" aria-hidden="true" hidden>
+      <div class="skeleton__panel"></div>
+      <div class="skeleton__main"></div>
+    </section>
+
+    <!-- Error -->
+    <output id="error" class="error" role="alert" hidden></output>
+
+    <!-- =========================  RESULTS  ========================= -->
+    <section id="dashboard" class="dash" hidden>
+      <!-- Left glass sidebar -->
+      <aside class="panel glass">
+        <form id="search-form" class="searchbar" role="search" autocomplete="off">
+          <svg class="searchbar__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 21l-4.3-4.3M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input id="search-input" class="searchbar__input" type="text" placeholder="Search city…" aria-label="Search for a city" />
+          <button class="searchbar__submit" type="submit" aria-label="Search">Go</button>
+        </form>
+
+        <div class="panel__temp">
+          <output id="cur-temp" class="bigtemp"></output>
+          <span id="cur-icon" class="panel__icon"></span>
+        </div>
+        <p class="panel__line"><span id="precip-side"></span> precip · Wind <span id="wind-side"></span></p>
+
+        <ul class="metrics">
+          <li class="metric"><span class="dot dot--a"></span>Feels like<b id="feels"></b></li>
+          <li class="metric"><span class="dot dot--b"></span>Humidity<b id="humidity"></b></li>
+          <li class="metric"><span class="dot dot--c"></span>Wind<b id="wind"></b></li>
+          <li class="metric"><span class="dot dot--d"></span>Rain<b id="precip"></b></li>
+        </ul>
+
+        <div class="spark">
+          <span class="eyebrow">5-day high trend</span>
+          <svg id="spark" class="spark__svg" viewBox="0 0 220 60" preserveAspectRatio="none" aria-hidden="true"></svg>
+        </div>
+
+        <div class="panel__about">
+          <h4 id="about-city" class="panel__city"></h4>
+          <p id="about-text" class="panel__desc"></p>
+        </div>
+      </aside>
+
+      <!-- Editorial main -->
+      <section class="editorial">
+        <div class="controls">
+          <span class="eyebrow" id="ed-country">Current Weather</span>
+          <div class="unit-toggle" role="group" aria-label="Temperature unit">
+            <button id="unit-c" class="unit-toggle__btn is-active" type="button" aria-pressed="true">°C</button>
+            <button id="unit-f" class="unit-toggle__btn" type="button" aria-pressed="false">°F</button>
+          </div>
+        </div>
+
+        <p class="eyebrow eyebrow--spaced">Weather Forecast</p>
+        <h2 id="headline" class="headline"></h2>
+        <p id="date" class="editorial__date"></p>
+        <p id="cur-desc" class="editorial__lede"></p>
+
+        <div class="trend">
+          <svg id="chart" class="chart" viewBox="0 0 1000 180" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <div id="forecast-grid" class="fstrip"></div>
+        </div>
+      </section>
+    </section>
+
+    <footer class="footer">
+      <p>Data from <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · Built with vanilla JS</p>
+    </footer>
+  </main>
+
+  <!-- Forecast column template -->
+  <template id="forecast-card">
+    <div class="fcol">
+      <span class="fcol__icon"></span>
+      <span class="fcol__day"></span>
+      <span class="fcol__hi"></span>
+      <span class="fcol__lo"></span>
+      <span class="fcol__bar"><span class="fcol__bar-fill"></span></span>
+    </div>
+  </template>
+
+  <script src="app.js?v=8"></script>
+</body>
+</html>
