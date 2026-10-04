@@ -1,7 +1,7 @@
 "use strict";
 
 /* =========================================================================
-   Weather Dashboard — vanilla JS
+   Weather Dashboard - vanilla JS
    Backend = two simple Open-Meteo endpoints (no API key, no signup):
      1. Geocoding : city name            -> latitude / longitude
      2. Forecast  : latitude / longitude -> current + daily weather
@@ -175,7 +175,7 @@ const state = {
 };
 
 /* =========================================================================
-   API service — the "backend". Each function does one thing and throws a
+   API service - the "backend". Each function does one thing and throws a
    friendly Error on failure so the caller's try/catch can show a message.
    ========================================================================= */
 
@@ -507,7 +507,7 @@ function saveRecent(label) {
   recents.unshift(label);
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(recents.slice(0, 5)));
-  } catch { /* storage unavailable — ignore */ }
+  } catch { /* storage unavailable - ignore */ }
   renderRecents();
 }
 
